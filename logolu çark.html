@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>İNDİRİM ÇARKI</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive;
+      background-color: #fef6e4;
+      text-align: center;
+      padding: 50px;
+    }
+
+    .logo {
+  width: 500px;
+  image-rendering: auto;
+}
+
+
+
+    h1 {
+      font-size: 3em;
+      color: #ff6f00;
+      margin-bottom: 20px;
+    }
+
+    button {
+      font-size: 1.5em;
+      padding: 15px 30px;
+      background-color: #ffd966;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    #result {
+      margin-top: 40px;
+      font-size: 2em;
+      color: #0066cc;
+      font-weight: bold;
+    }
+
+    .highlight {
+      font-size: 2.5em;
+      color: #d62828;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo üstte -->
+  <img src="logo.png" alt="ANKA KİTAP KIRTASİYE Logosu" class="logo">
+
+  <!-- Başlık -->
+  <h1>🎉 İNDİRİM ÇARKI</h1>
+
+  <!-- Buton ve sonuç -->
+  <button id="spinButton" onclick="spin()">Çarkı Çevir!</button>
+  <div id="result"></div>
+
+  <!-- Müzik -->
+  <audio id="bgMusic" src="yerinde-dur-10s.mp3"></audio>
+
+  <script>
+    const button = document.getElementById("spinButton");
+    const result = document.getElementById("result");
+    const music = document.getElementById("bgMusic");
+
+    if (localStorage.getItem("spun") === "true") {
+      button.disabled = true;
+      result.innerHTML = `
+        <p>Bu çark zaten çevrildi.</p>
+        <p class="highlight">Tek kullanımlıktır</p>
+      `;
+    }
+
+    function spin() {
+      button.disabled = true;
+      localStorage.setItem("spun", "true");
+
+      music.currentTime = 0;
+      music.play();
+
+      let counter = 0;
+      const animationDuration = 10000;
+      const interval = 100;
+
+      const animation = setInterval(() => {
+        const fakeNumber = Math.floor(Math.random() * 21);
+        result.innerHTML = `<p>Çark dönüyor...</p><p class="highlight">%${fakeNumber}</p>`;
+        counter += interval;
+        if (counter >= animationDuration) {
+          clearInterval(animation);
+          music.pause();
+          music.currentTime = 0;
+          showRealResult();
+        }
+      }, interval);
+    }
+
+    function showRealResult() {
+      const zeroChance = 0.5;
+
+      if (Math.random() < zeroChance) {
+        result.innerHTML = `
+          <p>Bugün indirim yok 😢</p>
+          <p class="highlight">%0</p>
+        `;
+      } else {
+        const weights = {
+          1: 9, 2: 9, 3: 9, 4: 9, 5: 9,
+          6: 0.33, 7: 0.33, 8: 0.33, 9: 0.33, 10: 0.33,
+          11: 0.33, 12: 0.33, 13: 0.33, 14: 0.33, 15: 0.33,
+          16: 0.33, 17: 0.33, 18: 0.33, 19: 0.33, 20: 0.33
+        };
+
+        const total = Object.values(weights).reduce((a, b) => a + b, 0);
+        const rand = Math.random() * total;
+
+        let cumulative = 0;
+        for (const [discount, weight] of Object.entries(weights)) {
+          cumulative += weight;
+          if (rand <= cumulative) {
+            result.innerHTML = `
+              <p>🎊 Tebrikler! İndirim kazandınız:</p>
+              <p class="highlight">%${discount}</p>
+            `;
+            break;
+          }
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
